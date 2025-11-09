@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معلومات الجهاز والموقع</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin: 25px 0 15px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s, background 0.3s;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .info-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .icon {
+            font-size: 22px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .battery-container {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 5px;
+            position: relative;
+        }
+        
+        .battery-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #27ae60);
+            border-radius: 12px;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .charging-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .charging-yes {
+            background-color: var(--success);
+        }
+        
+        .charging-no {
+            background-color: var(--warning);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 معلومات الجهاز والموقع</h1>
+            <p>هذه الصفحة تعرض معلومات عن جهازك واتصالك بالإنترنت</p>
+        </header>
+        
+        <section>
+            <h2>📱 معلومات الجهاز</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🌍</div>
+                    <div class="info-content">
+                        <div class="info-label">الدولة</div>
+                        <div class="info-value" id="country">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🏙️</div>
+                    <div class="info-content">
+                        <div class="info-label">المدينة</div>
+                        <div class="info-value" id="city">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🔋</div>
+                    <div class="info-content">
+                        <div class="info-label">شحن البطارية</div>
+                        <div class="info-value">
+                            <div id="batteryLevel">جاري التحميل...</div>
+                            <div class="battery-container">
+                                <div class="battery-level" id="batteryBar" style="width: 0%">0%</div>
+                            </div>
+                            <div id="chargingStatus" class="charging-status charging-no">جاري التحميل...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">📶</div>
+                    <div class="info-content">
+                        <div class="info-label">الشبكة</div>
+                        <div class="info-value" id="network">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🖥️</div>
+                    <div class="info-content">
+                        <div class="info-label">نظام التشغيل</div>
+                        <div class="info-value" id="os">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🧠</div>
+                    <div class="info-content">
+                        <div class="info-label">ذاكرة RAM</div>
+                        <div class="info-value" id="ram">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">⚙️</div>
+                    <div class="info-content">
+                        <div class="info-label">أنوية المعالج</div>
+                        <div class="info-value" id="cores">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🌐</div>
+                    <div class="info-content">
+                        <div class="info-label">لغة النظام</div>
+                        <div class="info-value" id="language">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">📏</div>
+                    <div class="info-content">
+                        <div class="info-label">دقة الشاشة</div>
+                        <div class="info-value" id="resolution">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🔒</div>
+                    <div class="info-content">
+                        <div class="info-label">بروتوكول الأمان</div>
+                        <div class="info-value" id="protocol">جاري التحميل...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>📍 معلومات الموقع والاتصال</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🌍</div>
+                    <div class="info-content">
+                        <div class="info-label">عنوان IP</div>
+                        <div class="info-value" id="ip">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🗺️</div>
+                    <div class="info-content">
+                        <div class="info-label">المنطقة</div>
+                        <div class="info-value" id="region">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">🏢</div>
+                    <div class="info-content">
+                        <div class="info-label">مزود الخدمة</div>
+                        <div class="info-value" id="provider">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">⏰</div>
+                    <div class="info-content">
+                        <div class="info-label">المنطقة الزمنية</div>
+                        <div class="info-value" id="timezone">جاري التحميل...</div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="icon">📌</div>
+                    <div class="info-content">
+                        <div class="info-label">الإحداثيات</div>
+                        <div class="info-value" id="coordinates">جاري التحميل...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <button class="btn" id="refreshBtn">🔄 تحديث المعلومات</button>
+        
+        <div class="footer">
+            <p>تم إنشاء هذه الصفحة باستخدام HTML وCSS وJavaScript</p>
+        </div>
+    </div>
+
+    <script>
+        // الحصول على معلومات الجهاز والموقع
+        function gatherDeviceInfo() {
+            // معلومات الشاشة
+            document.getElementById('resolution').textContent = `${screen.width}x${screen.height}`;
+            
+            // لغة المتصفح
+            document.getElementById('language').textContent = navigator.language || navigator.userLanguage;
+            
+            // نظام التشغيل
+            const os = navigator.userAgent;
+            if (os.includes('Windows')) {
+                document.getElementById('os').textContent = 'Windows';
+            } else if (os.includes('Mac')) {
+                document.getElementById('os').textContent = 'macOS';
+            } else if (os.includes('Linux')) {
+                document.getElementById('os').textContent = 'Linux';
+            } else if (os.includes('Android')) {
+                document.getElementById('os').textContent = 'Android';
+            } else if (os.includes('iOS') || os.includes('iPhone') || os.includes('iPad')) {
+                document.getElementById('os').textContent = 'iOS';
+            } else {
+                document.getElementById('os').textContent = 'غير معروف';
+            }
+            
+            // عدد الأنوية (تقديري)
+            document.getElementById('cores').textContent = navigator.hardwareConcurrency || 'غير معروف';
+            
+            // بروتوكول الأمان
+            document.getElementById('protocol').textContent = window.location.protocol;
+            
+            // معلومات البطارية
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(function(battery) {
+                    const batteryLevel = Math.round(battery.level * 100);
+                    document.getElementById('batteryLevel').textContent = `${batteryLevel}%`;
+                    document.getElementById('batteryBar').style.width = `${batteryLevel}%`;
+                    document.getElementById('batteryBar').textContent = `${batteryLevel}%`;
+                    
+                    const chargingStatus = document.getElementById('chargingStatus');
+                    if (battery.charging) {
+                        chargingStatus.textContent = 'نعم ⚡';
+                        chargingStatus.className = 'charging-status charging-yes';
+                    } else {
+                        chargingStatus.textContent = 'لا';
+                        chargingStatus.className = 'charging-status charging-no';
+                    }
+                });
+            } else {
+                document.getElementById('batteryLevel').textContent = 'غير متاح';
+                document.getElementById('batteryBar').style.width = '0%';
+                document.getElementById('batteryBar').textContent = 'غير متاح';
+                document.getElementById('chargingStatus').textContent = 'غير متاح';
+            }
+            
+            // معلومات الاتصال (تقديرية)
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                let networkType = 'غير معروف';
+                if (connection.effectiveType) {
+                    networkType = connection.effectiveType;
+                }
+                document.getElementById('network').textContent = `${networkType}`;
+            } else {
+                document.getElementById('network').textContent = 'غير معروف';
+            }
+            
+            // معلومات RAM (تقديرية)
+            if ('deviceMemory' in navigator) {
+                document.getElementById('ram').textContent = `${navigator.deviceMemory} GB`;
+            } else {
+                document.getElementById('ram').textContent = 'غير معروف';
+            }
+            
+            // الحصول على معلومات الموقع من خدمة خارجية
+            fetch('https://ipapi.co/json/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ip').textContent = data.ip;
+                    document.getElementById('country').textContent = data.country_name;
+                    document.getElementById('city').textContent = data.city;
+                    document.getElementById('region').textContent = data.region;
+                    document.getElementById('provider').textContent = data.org;
+                    document.getElementById('timezone').textContent = data.timezone;
+                    document.getElementById('coordinates').textContent = `${data.latitude}, ${data.longitude}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching location data:', error);
+                    document.getElementById('ip').textContent = 'خطأ في التحميل';
+                });
+        }
+        
+        // تحديث المعلومات عند النقر على الزر
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            gatherDeviceInfo();
+            this.textContent = '🔄 جاري التحديث...';
+            setTimeout(() => {
+                this.textContent = '🔄 تحديث المعلومات';
+            }, 2000);
+        });
+        
+        // تحميل المعلومات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', gatherDeviceInfo);
+    </script>
+</body>
+  </html>
